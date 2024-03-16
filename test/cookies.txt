@@ -1,5 +1,0 @@
-# HTTrack Website Copier Cookie File
-# This file format is compatible with Netscape cookies
-hutaobot.moe	TRUE	/	FALSE	1999999999	oauth-redirect	%2Ftools%2Freminders
-hutaobot.moe	TRUE	/	FALSE	1999999999	SameSite	Lax
-
