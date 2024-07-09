@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clickable Canvas with Color Selector and Eraser</title>
+    <title>Clickable Canvas with Color Selector, Eraser, and Wipe</title>
     <style>
         body, html {
             margin: 0;
@@ -13,24 +13,29 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         canvas {
             flex: 1;
             border: none;
             display: block;
         }
-        .color-picker-container {
+        .controls {
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 10px;
             background-color: #f0f0f0;
         }
+        .controls > * {
+            margin: 0 10px;
+        }
         .color-picker {
             width: 80px;
         }
-        .eraser-button {
+        .button {
             padding: 8px 16px;
             background-color: #fff;
             border: 1px solid #aaa;
@@ -40,15 +45,17 @@
 </head>
 <body>
     <canvas id="myCanvas"></canvas>
-    <div class="color-picker-container">
+    <div class="controls">
         <input type="color" id="colorPicker" class="color-picker" value="#000000">
-        <button id="eraserButton" class="eraser-button">Eraser</button>
+        <button id="eraserButton" class="button">Eraser</button>
+        <button id="wipeButton" class="button">Wipe</button>
     </div>
     <script>
         const canvas = document.getElementById('myCanvas');
         const context = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
         const eraserButton = document.getElementById('eraserButton');
+        const wipeButton = document.getElementById('wipeButton');
 
         let isDrawing = false;
         let currentColor = '#000000'; // Default color is black
@@ -56,7 +63,7 @@
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - colorPicker.parentElement.offsetHeight;
+            canvas.height = window.innerHeight - colorPicker.parentElement.offsetHeight - 20; // Adjusted for padding
             loadCanvas(); // Load saved canvas state after resizing
         }
 
@@ -76,6 +83,11 @@
             }
         }
 
+        function wipeCanvas() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            localStorage.removeItem('canvasData');
+        }
+
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
@@ -85,6 +97,10 @@
 
         eraserButton.addEventListener('click', function() {
             currentColor = '#ffffff'; // Set color to white for erasing
+        });
+
+        wipeButton.addEventListener('click', function() {
+            wipeCanvas();
         });
 
         canvas.addEventListener('mousedown', function(event) {
@@ -113,6 +129,7 @@
             const y = Math.floor((event.clientY - rect.top) / pixelSize) * pixelSize;
             context.fillStyle = currentColor;
             context.fillRect(x, y, pixelSize, pixelSize);
+            saveCanvas(); // Save canvas state after drawing each pixel
         }
     </script>
 </body>
