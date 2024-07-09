@@ -3,33 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clickable Canvas</title>
+    <title>Clickable Canvas with Color Selector</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         canvas {
-            border: 1px solid black;
+            flex: 1;
+            border: none;
+            display: block;
+        }
+        .color-picker {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            background-color: #f0f0f0;
         }
     </style>
 </head>
 <body>
-    <canvas id="myCanvas" width="500" height="500"></canvas>
+    <canvas id="myCanvas"></canvas>
+    <div class="color-picker">
+        <input type="color" id="colorPicker" value="#000000">
+    </div>
     <script>
         const canvas = document.getElementById('myCanvas');
         const context = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+
+        let currentColor = '#000000'; // Default color is black
+        const pixelSize = 10; // Size of the pixels to be drawn
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - colorPicker.parentElement.offsetHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        colorPicker.addEventListener('input', function() {
+            currentColor = colorPicker.value;
+        });
 
         canvas.addEventListener('click', function(event) {
             const rect = canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
-            context.fillStyle = 'black';
-            context.fillRect(x, y, 1, 1);
+            context.fillStyle = currentColor;
+            context.fillRect(Math.floor(x / pixelSize) * pixelSize, Math.floor(y / pixelSize) * pixelSize, pixelSize, pixelSize);
         });
     </script>
 </body>
