@@ -125,8 +125,8 @@
 
         function draw(event) {
             const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((event.offsetX / pixelSize)) * pixelSize;
-            const y = Math.floor((event.offsetY / pixelSize)) * pixelSize;
+            const x = Math.floor((event.clientX - rect.left) / pixelSize) * pixelSize;
+            const y = Math.floor((event.clientY - rect.top) / pixelSize) * pixelSize;
             context.fillStyle = currentColor;
             context.fillRect(x, y, pixelSize, pixelSize);
             saveCanvas(); // Save canvas state after drawing each pixel
