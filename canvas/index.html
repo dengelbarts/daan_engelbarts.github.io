@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clickable Canvas with Color Selector</title>
+    <title>Clickable Canvas with Color Selector and Eraser</title>
     <style>
         body, html {
             margin: 0;
@@ -19,30 +19,61 @@
             border: none;
             display: block;
         }
-        .color-picker {
+        .color-picker-container {
             width: 100%;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 10px;
             background-color: #f0f0f0;
+        }
+        .color-picker {
+            width: 80px;
+        }
+        .eraser-button {
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid #aaa;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <canvas id="myCanvas"></canvas>
-    <div class="color-picker">
-        <input type="color" id="colorPicker" value="#000000">
+    <div class="color-picker-container">
+        <input type="color" id="colorPicker" class="color-picker" value="#000000">
+        <button id="eraserButton" class="eraser-button">Eraser</button>
     </div>
     <script>
         const canvas = document.getElementById('myCanvas');
         const context = canvas.getContext('2d');
         const colorPicker = document.getElementById('colorPicker');
+        const eraserButton = document.getElementById('eraserButton');
 
+        let isDrawing = false;
         let currentColor = '#000000'; // Default color is black
         const pixelSize = 10; // Size of the pixels to be drawn
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight - colorPicker.parentElement.offsetHeight;
+            loadCanvas(); // Load saved canvas state after resizing
+        }
+
+        function saveCanvas() {
+            const canvasData = canvas.toDataURL();
+            localStorage.setItem('canvasData', canvasData);
+        }
+
+        function loadCanvas() {
+            const savedCanvasData = localStorage.getItem('canvasData');
+            if (savedCanvasData) {
+                const img = new Image();
+                img.onload = function() {
+                    context.drawImage(img, 0, 0);
+                }
+                img.src = savedCanvasData;
+            }
         }
 
         window.addEventListener('resize', resizeCanvas);
@@ -52,13 +83,37 @@
             currentColor = colorPicker.value;
         });
 
-        canvas.addEventListener('click', function(event) {
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-            context.fillStyle = currentColor;
-            context.fillRect(Math.floor(x / pixelSize) * pixelSize, Math.floor(y / pixelSize) * pixelSize, pixelSize, pixelSize);
+        eraserButton.addEventListener('click', function() {
+            currentColor = '#ffffff'; // Set color to white for erasing
         });
+
+        canvas.addEventListener('mousedown', function(event) {
+            isDrawing = true;
+            draw(event);
+        });
+
+        canvas.addEventListener('mousemove', function(event) {
+            if (isDrawing) {
+                draw(event);
+            }
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            isDrawing = false;
+            saveCanvas(); // Save canvas state after finishing drawing
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+            isDrawing = false;
+        });
+
+        function draw(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((event.clientX - rect.left) / pixelSize) * pixelSize;
+            const y = Math.floor((event.clientY - rect.top) / pixelSize) * pixelSize;
+            context.fillStyle = currentColor;
+            context.fillRect(x, y, pixelSize, pixelSize);
+        }
     </script>
 </body>
 </html>
